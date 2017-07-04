@@ -1,0 +1,53 @@
+---
+  template: 
+    templateName: ACCS-Showcase
+    templateVersion: 1.0.3
+    templateDescription: ACCS template that showcases all ACCS capabilities (Java/PHP/Node)
+    parameters:
+      runtime:
+        label: ACCS Runtime
+        description: Please select the ACCS runtime of your choice
+        type: String
+        mandatory: true
+        allowedValues: [Java, PHP, Node]
+      subscriptionType: 
+        label: Subscription type
+        description: The subscription type
+        type: String
+        default: MONTHLY
+    conditions:
+        javaRuntime: { "Fn::Equals": ["Fn::GetParam": runtime, Java] }
+        phpRuntime: { "Fn::Equals": ["Fn::GetParam": runtime, PHP] }
+        nodeRuntime: { "Fn::Equals": ["Fn::GetParam": runtime, Node] }
+    resources: 
+      javaApp: 
+        condition: javaRuntime
+        type: apaas
+        parameters: 
+            name: { "Fn::Join": ["-", ["Fn::GetParam": serviceName, Java]] }
+            runtime: Java
+            subscription: 
+                Fn::GetParam: subscriptionType
+      phpApp: 
+        condition: phpRuntime
+        type: apaas
+        parameters: 
+            name: { "Fn::Join": ["-", ["Fn::GetParam": serviceName, php]] }
+            runtime: PHP
+            subscription: 
+                Fn::GetParam: subscriptionType
+      nodeApp: 
+        condition: nodeRuntime
+        type: apaas
+        parameters: 
+            name: { "Fn::Join": ["-", ["Fn::GetParam": serviceName, node]] }
+            runtime: node
+            subscription: 
+                Fn::GetParam: subscriptionType
+    attributes: 
+        AppWebURL: 
+            value: 
+                Fn::GetAtt: 
+                  - app
+                  - attributes.webURL
+            description: Application URL
